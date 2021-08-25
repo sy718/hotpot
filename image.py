@@ -1,4 +1,3 @@
-import tkinter as tk
 from PIL import Image, ImageTk
 
 
@@ -11,6 +10,5 @@ def get_image(filename, width, height):
 # 裁剪图片
 def cut_image(filename, left, upper, right, lower):
     img = Image.open(filename)
-    print(img.size)
     cropped = img.crop((left, upper, right, lower))  # (left, upper, right, lower)
     return ImageTk.PhotoImage(cropped)
