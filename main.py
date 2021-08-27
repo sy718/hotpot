@@ -4,16 +4,22 @@ from tkinter import ttk
 from image import *
 import openpyxl
 
-
 workbook = openpyxl.load_workbook("database.xlsx")
 customers = workbook["Sheet1"]
 food = workbook["Sheet2"]
+food_scratch = workbook["Sheet3"]
 gDishes = [["清汤(20元)", "滋补(40元)", "鸳鸯(60元)"],  # 锅底
            ["香菜(10元)", "麻酱(20元)", "韭花(20元)"],  # 佐料
-           ["羊肉(30元)    剩余"+str(food.cell(row=2, column=1).value) + "份",
-            "肥牛(40元)    剩余"+str(food.cell(row=2, column=2).value) + "份",
-            "白菜(10元)    剩余"+str(food.cell(row=2, column=3).value) + "份",
-            "茼蒿(20元)    剩余"+str(food.cell(row=2, column=4).value) + "份"]]  # 菜品
+           ["羊肉(30元)", "肥牛(40元)", "白菜(10元)", "茼蒿(20元)"]]  # 菜品
+
+
+def reset_sheet3():
+    global food_scratch
+    food_scratch.cell(2, 1, int(food.cell(row=2, column=1).value))
+    food_scratch.cell(2, 2, int(food.cell(row=2, column=2).value))
+    food_scratch.cell(2, 3, int(food.cell(row=2, column=3).value))
+    food_scratch.cell(2, 4, int(food.cell(row=2, column=4).value))
+    workbook.save('database.xlsx')
 
 
 def add_to_listbox(listbox, lst):
@@ -44,6 +50,34 @@ def bt_delete_click():
             price = int(dish[7:9])
             price *= int(dish[dish.index("×") + 1:])
             gWin.totalCost -= price
+            if dish[4:6] == "羊肉":
+                food_scratch.cell(row=2, column=1).value += int(dish[13:])
+                workbook.save('database.xlsx')
+                bt_add["state"] = tk.NORMAL
+                bt_add["text"] = "添加"
+                bt_add["fg"] = "black"
+                bt_add["font"] = ("楷体", 16, "bold")
+            if dish[4:6] == "肥牛":
+                food_scratch.cell(row=2, column=2).value += int(dish[13:])
+                workbook.save('database.xlsx')
+                bt_add["state"] = tk.NORMAL
+                bt_add["text"] = "添加"
+                bt_add["fg"] = "black"
+                bt_add["font"] = ("楷体", 16, "bold")
+            if dish[4:6] == "白菜":
+                food_scratch.cell(row=2, column=3).value += int(dish[13:])
+                workbook.save('database.xlsx')
+                bt_add["state"] = tk.NORMAL
+                bt_add["text"] = "添加"
+                bt_add["fg"] = "black"
+                bt_add["font"] = ("楷体", 16, "bold")
+            if dish[4:6] == "茼蒿":
+                food_scratch.cell(row=2, column=4).value += int(dish[13:])
+                workbook.save('database.xlsx')
+                bt_add["state"] = tk.NORMAL
+                bt_add["text"] = "添加"
+                bt_add["fg"] = "black"
+                bt_add["font"] = ("楷体", 16, "bold")
         gWin.lbHint["text"] = "饭菜总价：" + str(int(gWin.totalCost * gWin.discount)) + "元"
         gWin.lbHint["fg"] = "black"
         for i in sel[::-1]:
@@ -90,7 +124,7 @@ def manage():
 
     gWin.bg_mutton = cut_image("background.png", 125, 200, 325, 250)
     gWin.lb_mutton = tk.Label(gWin, text="羊肉（当前" + str(food.cell(row=2, column=1).value) + "份）：",
-                              font=('思源黑体', 16, 'bold'), image=gWin.bg_mutton, compound="center")
+                              font=('思源黑体', 14, 'bold'), image=gWin.bg_mutton, compound="center")
     gWin.lb_mutton.place(x=125, y=200, width=200, height=50)
 
     gWin.et_mutton = tk.Entry(gWin, textvariable=mutton, font=('', 16, ''))
@@ -98,7 +132,7 @@ def manage():
 
     gWin.bg_cattle = cut_image("background.png", 515, 200, 715, 250)
     gWin.lb_cattle = tk.Label(gWin, text="肥牛（当前" + str(food.cell(row=2, column=1).value) + "份）：",
-                              font=('思源黑体', 16, 'bold'), image=gWin.bg_cattle, compound="center")
+                              font=('思源黑体', 14, 'bold'), image=gWin.bg_cattle, compound="center")
     gWin.lb_cattle.place(x=515, y=200, width=200, height=50)
 
     gWin.et_cattle = tk.Entry(gWin, textvariable=cattle, font=('', 16, ''))
@@ -106,7 +140,7 @@ def manage():
 
     gWin.bg_cabbage = cut_image("background.png", 125, 320, 325, 370)
     gWin.lb_cabbage = tk.Label(gWin, text="白菜（当前" + str(food.cell(row=2, column=1).value) + "份）：",
-                               font=('思源黑体', 16, 'bold'), image=gWin.bg_cabbage, compound="center")
+                               font=('思源黑体', 14, 'bold'), image=gWin.bg_cabbage, compound="center")
     gWin.lb_cabbage.place(x=125, y=320, width=200, height=50)
 
     gWin.et_cabbage = tk.Entry(gWin, textvariable=cabbage, font=('', 16, ''))
@@ -114,7 +148,7 @@ def manage():
 
     gWin.bg_lettuce = cut_image("background.png", 515, 320, 715, 370)
     gWin.lb_lettuce = tk.Label(gWin, text="茼蒿（当前" + str(food.cell(row=2, column=1).value) + "份）：",
-                               font=('思源黑体', 16, 'bold'), image=gWin.bg_lettuce, compound="center")
+                               font=('思源黑体', 14, 'bold'), image=gWin.bg_lettuce, compound="center")
     gWin.lb_lettuce.place(x=515, y=320, width=200, height=50)
 
     gWin.et_lettuce = tk.Entry(gWin, textvariable=lettuce, font=('', 16, ''))
@@ -171,6 +205,8 @@ def bt_back2_click():
 
     lb_welcome.place(x=170, y=30, width=700, height=90)
     lb_hint.place(x=325, y=150, width=390, height=30)
+    lb_hint["text"] = " 请 输 入 您 的 用 户 名 和 密 码 ："
+    lb_hint["fg"] = "black"
     lb_username.place(x=320, y=220, width=150, height=30)
     lb_password.place(x=320, y=290, width=150, height=30)
     et_username.place(x=520, y=220, width=200, height=30)
@@ -214,6 +250,8 @@ def login():
     bt_administrator.place_forget()
     cb_password.place_forget()
     bt_register.place_forget()
+
+    reset_sheet3()
 
     big_font = tkFont.Font(family="华文新魏", size=20)
     gWin.option_add("*TCombobox*Listbox*Font", big_font)
@@ -299,7 +337,7 @@ def bt_vip_click():
     sub_vip.configure(bg="white")
     sub_vip.resizable(0, 0)
     lb_vip = tk.Label(sub_vip, text="     开通会员需付款200元，其中的150元将会存入火锅店账户余额中使用。" + '\n' + '\n' +
-                      "会员用户可享受8折优惠，此外每次结账后还可抽取海量红包哦！",
+                                    "会员用户可享受8折优惠，此外每次结账后还可抽取海量红包哦！",
                       font=("", 16, "bold"), bg="white", anchor="w")
     lb_vip.place(x=8, y=50, width=780)
 
@@ -344,6 +382,8 @@ def bt_back1_click():
     gWin.lb_id.place_forget()
 
     lb_welcome.place(x=170, y=30, width=700, height=90)
+    lb_hint["text"] = " 请 输 入 您 的 用 户 名 和 密 码 ："
+    lb_hint["fg"] = "black"
     lb_hint.place(x=325, y=150, width=390, height=30)
     lb_username.place(x=320, y=220, width=150, height=30)
     lb_password.place(x=320, y=290, width=150, height=30)
@@ -356,6 +396,7 @@ def bt_back1_click():
 
 
 def bt_add_click():
+    global food_scratch
     # btAdd["state"] = tk.DISABLED  tk.NORMAL
     sel = gWin.lsbDishes.curselection()  # sel形如 (1,2,3)
     if sel == ():
@@ -364,14 +405,216 @@ def bt_add_click():
     else:
         dish = gWin.lsbDishes.get(sel)
         price, num = int(dish[3:5]), gWin.dish_num.get()
-        gWin.lsbTable.insert(tk.END, "[" + gWin.category.get() + "]" + dish + " ×" + num)
-        gWin.totalCost += price * int(num)
-        gWin.lbHint["text"] = "饭菜总价：" + str(int(gWin.totalCost * gWin.discount)) + "元"
-        gWin.lbHint["fg"] = "black"
+        Num = int(num)
+
+        if dish[0:2] == "羊肉":
+            bt_add["state"] = tk.NORMAL
+            if food_scratch.cell(row=2, column=1).value < Num:
+                bt_add["state"] = tk.DISABLED
+                bt_add["text"] = "所选数量过多！"
+                bt_add["fg"] = "red"
+                bt_add["font"] = ("楷体", 10, "")
+            else:
+                food_scratch.cell(row=2, column=1).value -= Num
+                bt_add["state"] = tk.NORMAL
+                bt_add["text"] = "添加"
+                bt_add["fg"] = "black"
+                bt_add["font"] = ("楷体", 16, "bold")
+                workbook.save('database.xlsx')
+        if dish[0:2] == "肥牛":
+            bt_add["state"] = tk.NORMAL
+            if food_scratch.cell(row=2, column=2).value < Num:
+                bt_add["state"] = tk.DISABLED
+                bt_add["text"] = "所选数量过多！"
+                bt_add["fg"] = "red"
+                bt_add["font"] = ("楷体", 10, "")
+            else:
+                food_scratch.cell(row=2, column=2).value -= Num
+                workbook.save('database.xlsx')
+                bt_add["state"] = tk.NORMAL
+                bt_add["text"] = "添加"
+                bt_add["fg"] = "black"
+                bt_add["font"] = ("楷体", 16, "bold")
+        if dish[0:2] == "白菜":
+            bt_add["state"] = tk.NORMAL
+            if food_scratch.cell(row=2, column=3).value < Num:
+                bt_add["state"] = tk.DISABLED
+                bt_add["text"] = "所选数量过多！"
+                bt_add["fg"] = "red"
+                bt_add["font"] = ("楷体", 10, "")
+            else:
+                food_scratch.cell(row=2, column=3).value -= Num
+                workbook.save('database.xlsx')
+                bt_add["state"] = tk.NORMAL
+                bt_add["text"] = "添加"
+                bt_add["fg"] = "black"
+                bt_add["font"] = ("楷体", 16, "bold")
+        if dish[0:2] == "茼蒿":
+            bt_add["state"] = tk.NORMAL
+            if food_scratch.cell(row=2, column=4).value < Num:
+                bt_add["state"] = tk.DISABLED
+                bt_add["text"] = "所选数量过多！"
+                bt_add["fg"] = "red"
+                bt_add["font"] = ("楷体", 10, "")
+            else:
+                food_scratch.cell(row=2, column=4).value -= Num
+                workbook.save('database.xlsx')
+                bt_add["state"] = tk.NORMAL
+                bt_add["text"] = "添加"
+                bt_add["fg"] = "black"
+                bt_add["font"] = ("楷体", 16, "bold")
+
+        if bt_add["state"] == tk.NORMAL:
+            gWin.lsbTable.insert(tk.END, "[" + gWin.category.get() + "]" + dish + " ×" + num)
+            gWin.totalCost += price * Num
+            gWin.lbHint["text"] = "饭菜总价：" + str(int(gWin.totalCost * gWin.discount)) + "元"
+            gWin.lbHint["fg"] = "black"
 
 
 def bt_register_click():
-    pass
+    global gWin
+    bt_login.place_forget()
+    lb_hint.place_forget()
+    cb_password.place_forget()
+    bt_administrator.place_forget()
+    bt_register.place_forget()
+    lb_username.place_forget()
+    lb_password.place_forget()
+    et_password.place_forget()
+    et_username.place_forget()
+
+    gWin.repassword, gWin.username1, gWin.password1 = tk.StringVar(), tk.StringVar(), tk.StringVar()
+
+    gWin.name1 = cut_image("background.png", 320, 220, 470, 250)
+    gWin.lbUsername1 = tk.Label(gWin, text=" 用 户 名 ：", image=gWin.name1, fg="black", font=('思源黑体', 16, ''),
+                                compound="center")
+    gWin.lbUsername1.place(x=320, y=220, width=150, height=30)
+
+    gWin.psw1 = cut_image("background.png", 320, 290, 470, 320)
+    gWin.lbPassword1 = tk.Label(gWin, text=" 密 码 ：", image=gWin.psw1, fg="black", font=('思源黑体', 16, ''),
+                                compound="center")
+    gWin.lbPassword1.place(x=320, y=290, width=150, height=30)
+
+    gWin.etUsername1 = tk.Entry(gWin, textvariable=gWin.username1, font=('', 14, ''))
+    gWin.etUsername1.place(x=520, y=220, width=200, height=30)
+
+    gWin.etPassword1 = tk.Entry(gWin, textvariable=gWin.password1, show="*", font=('', 14, ''))
+    gWin.etPassword1.place(x=520, y=290, width=200, height=30)
+
+    lb_welcome["text"] = "用户注册"
+    lb_welcome["fg"] = "black"
+
+    gWin.rpsw = cut_image("background.png", 280, 360, 500, 390)
+    gWin.lbrePassword = tk.Label(gWin, text=" 再次输入密码 ：", image=gWin.rpsw, fg="black", font=('思源黑体', 16, ''),
+                                 compound="center")
+    gWin.lbrePassword.place(x=280, y=360, width=150, height=30)
+
+    gWin.etrePassword = tk.Entry(gWin, textvariable=gWin.repassword, show="*", font=('', 14, ''))
+    gWin.etrePassword.place(x=520, y=360, width=200, height=30)
+
+    gWin.bt_register1 = tk.Button(gWin, text="注 册", image=bt, fg="black", font=('', 14, 'bold'),
+                                  command=bt_register1_click, compound="center")
+    gWin.bt_register1.place(x=340, y=460, width=100, height=60)
+
+    gWin.bt_back3 = tk.Button(gWin, text="返 回", image=bt, fg="black", font=('', 14, 'bold'),
+                              command=bt_back3_click, compound="center")
+    gWin.bt_back3.place(x=600, y=460, width=100, height=60)
+
+
+def bt_back3_click():
+    bt_login.place(x=340, y=460, width=100, height=60)
+    lb_hint.place(x=325, y=150, width=390, height=30)
+    bt_register.place(x=600, y=460, width=100, height=60)
+    cb_password.place(x=373, y=350, width=100, height=20)
+    bt_administrator.place(x=1, y=1, width=8, height=8)
+    lb_username.place(x=320, y=220, width=150, height=30)
+    lb_password.place(x=320, y=290, width=150, height=30)
+    et_username.place(x=520, y=220, width=200, height=30)
+    et_password.place(x=520, y=290, width=200, height=30)
+    lb_welcome["text"] = "欢迎光临"
+    lb_welcome["fg"] = "red"
+    gWin.bt_register1.place_forget()
+    gWin.lbrePassword.place_forget()
+    gWin.etrePassword.place_forget()
+    gWin.lbUsername1.place_forget()
+    gWin.lbPassword1.place_forget()
+    gWin.etUsername1.place_forget()
+    gWin.etPassword1.place_forget()
+    gWin.bt_back3.place_forget()
+    Checktxt.place_forget()
+
+
+def bt_register1_click():
+    global gWin, Checktxt
+    if gWin.username1.get() == "" or gWin.password1.get() == "" or gWin.repassword.get() == "":
+        gWin.check = cut_image("background.png", 350, 150, 690, 200)
+        Checktxt = tk.Label(gWin, text="输入的内容不能为空！", image=gWin.check, fg="red",
+                            font=("楷体", 14, "bold"), compound="center")
+        Checktxt.place(x=350, y=150, width=340, height=50)
+    elif gWin.repassword.get() != gWin.password1.get():
+        gWin.password1.set("")
+        gWin.repassword.set("")
+        gWin.check = cut_image("background.png", 350, 150, 690, 200)
+        Checktxt = tk.Label(gWin, text="两次输入密码不一致，请重新输入！", image=gWin.check, fg="red",
+                            font=("楷体", 14, "bold"), compound="center")
+        Checktxt.place(x=350, y=150, width=340, height=50)
+    else:
+        flag1 = 1
+        for i in range(2, customers.max_row + 1):
+            if str(customers.cell(row=i, column=1).value) == gWin.username1.get():
+                flag1 = 0
+                break
+        if flag1:
+            row = customers.max_row
+            customers.cell(row + 1, 1, gWin.username1.get())
+            customers.cell(row + 1, 2, gWin.password1.get())
+            customers.cell(row + 1, 3, 1)
+            customers.cell(row + 1, 4, 0)
+            customers.cell(row + 1, 5, "普通账户")
+            workbook.save('database.xlsx')
+
+            global success
+            success = tk.Toplevel(gWin)
+            success.title("系统提示")
+            success.geometry("250x250+395+175")
+            success.configure(bg="white")
+            success.resizable(0, 0)
+            ht1 = tk.Label(success, text="注册成功！", bg="white", font=('', 14, ''), relief="flat")
+            ht1.place(x=75, y=50, width=100, height=30)
+            button1 = tk.Button(success, text="确定", font=('', 14, ''), bg="white", command=button1_click)
+            button1.place(x=75, y=150, width=100, height=40)
+        else:
+            gWin.username1.set("")
+            gWin.password1.set("")
+            gWin.repassword.set("")
+            gWin.check = cut_image("background.png", 350, 150, 690, 200)
+            Checktxt = tk.Label(gWin, text="该用户名已存在，请重新输入！", image=gWin.check, fg="red",
+                                font=("楷体", 14, "bold"), compound="center")
+            Checktxt.place(x=350, y=150, width=340, height=50)
+
+
+def button1_click():
+    success.destroy()
+    bt_login.place(x=340, y=460, width=100, height=60)
+    lb_hint.place(x=325, y=150, width=390, height=30)
+    bt_register.place(x=600, y=460, width=100, height=60)
+    cb_password.place(x=373, y=350, width=100, height=20)
+    bt_administrator.place(x=1, y=1, width=8, height=8)
+    lb_username.place(x=320, y=220, width=150, height=30)
+    lb_password.place(x=320, y=290, width=150, height=30)
+    et_username.place(x=520, y=220, width=200, height=30)
+    et_password.place(x=520, y=290, width=200, height=30)
+    lb_welcome["text"] = "欢迎光临"
+    lb_welcome["fg"] = "red"
+    gWin.bt_register1.place_forget()
+    gWin.lbrePassword.place_forget()
+    gWin.etrePassword.place_forget()
+    gWin.lbUsername1.place_forget()
+    gWin.lbPassword1.place_forget()
+    gWin.etUsername1.place_forget()
+    gWin.etPassword1.place_forget()
+    gWin.bt_back3.place_forget()
+    Checktxt.place_forget()
 
 
 def main():
