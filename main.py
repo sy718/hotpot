@@ -1,8 +1,10 @@
-import tkinter as tk
 import tkinter.font as tkFont
-from tkinter import ttk
+import tkinter as tk
 from image import *
+from tkinter import ttk
+from pay import *
 import openpyxl
+
 
 workbook = openpyxl.load_workbook("database.xlsx")
 customers = workbook["Sheet1"]
@@ -97,9 +99,9 @@ def bt_administrator_click():
         username.set("")  # 将用户名输入框清空
         manage()
     else:
-        password.set("")  # 将密码输入框清空
-        username.set("")  # 将用户名输入框清空
-        lb_hint["fg"] = "red"  # 文字变成红色
+        password.set("")
+        username.set("")
+        lb_hint["fg"] = "red"
         lb_hint["text"] = "用户名或密码错误，请重新输入!"
 
 
@@ -228,14 +230,14 @@ def bt_login_click():
             gWin.account = float(customers.cell(row=i, column=4).value)
             gWin.sequence = i
             break
-    if flag:  # 正确的用户名和密码
-        password.set("")  # 将密码输入框清空
-        username.set("")  # 将用户名输入框清空
+    if flag:
+        password.set("")
+        username.set("")
         login()
     else:
-        password.set("")  # 将密码输入框清空
-        username.set("")  # 将用户名输入框清空
-        lb_hint["fg"] = "red"  # 文字变成红色
+        password.set("")
+        username.set("")
+        lb_hint["fg"] = "red"
         lb_hint["text"] = "用户名或密码错误，请重新输入!"
 
 
@@ -337,7 +339,7 @@ def bt_vip_click():
     sub_vip.configure(bg="white")
     sub_vip.resizable(0, 0)
     lb_vip = tk.Label(sub_vip, text="     开通会员需付款200元，其中的150元将会存入火锅店账户余额中使用。" + '\n' + '\n' +
-                                    "会员用户可享受8折优惠，此外每次结账后还可抽取海量红包哦！",
+                                    "会员用户可享受8折优惠哦！",
                       font=("", 16, "bold"), bg="white", anchor="w")
     lb_vip.place(x=8, y=50, width=780)
 
@@ -360,8 +362,92 @@ def bt_ok_click():
 
 
 def bt_buy_click():
-    # sub_buy = tk.Toplevel(gWin)
-    pass
+    global pay_set, font_size, pfa, PAD, pay, entry_pay_from_account
+    pay_set = tk.Toplevel(gWin)
+    pay_set.title("下单")
+    pay_set.resizable(0, 0)
+    pfa_cmd = pay_set.register(test)
+    pay = float(gWin.totalCost * gWin.discount)
+    pfa = tk.StringVar()
+    pfa.set(min(pay, gWin.account))
+
+    font_size = 20
+    entry_pay_from_account = tk.Entry(pay_set, textvariable=pfa, validate='key', validatecommand=(pfa_cmd, '%P'))
+    label_pay = tk.Label(pay_set, text="本次消费需支付：" + str(pay) + "元",
+                         fg="black", font=('华文行楷', font_size, 'bold'))
+    label_account = tk.Label(pay_set, text="账户余额：" + str(gWin.account) + "元",
+                             fg="black", font=('华文行楷', font_size, 'bold'))
+    label_pay_from_account = tk.Label(pay_set, text="请输入从账户中支付：", fg="black", font=('华文行楷', font_size, 'bold'))
+    label_yuan = tk.Label(pay_set, text="元", fg="black", font=('华文行楷', font_size, 'bold'))
+
+    bt_sure = tk.Button(pay_set, text="支付", fg="black", font=('华文行楷', font_size, 'bold'), bg="white",
+                        command=pay_interface)
+    bt_back = tk.Button(pay_set, text="返回", fg="black", font=('华文行楷', font_size, 'bold'), bg="white",
+                        command=pay_set.destroy)
+
+    COL = 2
+    PAD = 10
+    label_pay.grid(row=0, column=0, columnspan=COL + 1, padx=PAD, pady=PAD)
+    label_account.grid(row=1, column=0, columnspan=COL + 1, padx=PAD, pady=PAD)
+    label_pay_from_account.grid(row=2, column=0, padx=PAD, pady=PAD)
+    label_yuan.grid(row=2, column=2, padx=PAD, pady=PAD)
+    entry_pay_from_account.grid(row=2, column=1, padx=PAD, pady=PAD)
+    bt_sure.grid(row=4, column=0, padx=PAD, pady=PAD)
+    bt_back.grid(row=4, column=1, padx=PAD, pady=PAD)
+
+
+def pay_interface():  # 支付界面
+    global pay_face
+    pay_face = tk.Toplevel(pay_set)
+    pay_face.resizable(0, 0)
+    pay_from_account = tk.Label(pay_face, text="已从账户中支付：" + str(pfa.get()) + "元",
+                                fg="black", font=('华文行楷', font_size, 'bold'))
+    pay_back = tk.Button(pay_face, text="返回", fg="black", font=('华文行楷', font_size, 'bold'), bg="white",
+                         command=pay_face.destroy)
+    pay_over = tk.Button(pay_face, text="支付成功", fg="black", font=('华文行楷', font_size, 'bold'), bg="white",
+                         command=pay_over_click)
+    pfm = pay - float(pfa.get())  # 需另外支付
+    if float(pfa.get()) <= gWin.account:
+        if pfm > 0:
+            pay_pay_from_money = tk.Label(pay_face, text="还需支付：" + str(pfm) + "元",
+                                          fg="black", font=('华文行楷', font_size, 'bold'))
+            pay_qrcode = tk.Label(pay_face, text="扫描下方二维码进行支付", fg="black", font=('华文行楷', font_size, 'bold'))
+
+            global code1
+            code1 = get_image("code.jpg", 180, 180)
+            pay_code_jpg = tk.Label(pay_face, image=code1, compound="center")
+            pay_from_account.grid(row=0, column=0, columnspan=2, padx=PAD, pady=PAD)
+            pay_pay_from_money.grid(row=1, column=0, columnspan=2, padx=PAD, pady=PAD)
+            pay_qrcode.grid(row=2, column=0, columnspan=2, padx=PAD, pady=PAD)
+            pay_code_jpg.grid(row=3, column=0, columnspan=2, padx=PAD, pady=PAD)
+            pay_over.grid(row=4, column=0, padx=PAD, pady=PAD)
+            pay_back.grid(row=4, column=1, padx=PAD, pady=PAD)
+        elif pfm == 0:
+            pay_from_account.grid(row=0, column=0, padx=PAD, pady=PAD)
+            pay_over.grid(row=1, column=0, padx=PAD, pady=PAD)
+    elif float(pfa.get()) > gWin.totalCost or pfm < 0:
+        pay_error = tk.Label(pay_face, text="金额有误，请重新输入！", fg="red", font=('华文行楷', font_size, 'bold'))
+        pay_error.grid(row=0, column=0, padx=PAD, pady=PAD)
+        pay_back.grid(row=1, column=0, padx=PAD, pady=PAD)
+
+
+def pay_over_click():
+    pay_face.destroy()
+    red_packet = tk.Toplevel(pay_set)
+    num_packet = (int(Red_envelope(gWin.totalCost, c=0.1)) // 10) * 10 + 8
+    label_packet = tk.Label(red_packet, text="恭喜您获得红包 " + str(num_packet) + " 元",
+                            fg="black", font=('华文行楷', font_size, 'bold'))
+    packet_sure = tk.Button(red_packet, text="确定", fg="black", font=('华文行楷', font_size, 'bold'), bg="white",
+                            command=red_packet.destroy)
+    label_packet.grid(row=0, column=0, padx=PAD, pady=PAD)
+    packet_sure.grid(row=1, column=0, padx=PAD, pady=PAD)
+    gWin.account = gWin.account - float(pfa.get()) + num_packet
+    customers.cell(gWin.sequence, 4, gWin.account)
+    food.cell(2, 1, int(food_scratch.cell(row=2, column=1).value))
+    food.cell(2, 2, int(food_scratch.cell(row=2, column=2).value))
+    food.cell(2, 3, int(food_scratch.cell(row=2, column=3).value))
+    food.cell(2, 4, int(food_scratch.cell(row=2, column=4).value))
+    workbook.save('database.xlsx')
 
 
 def bt_back1_click():
