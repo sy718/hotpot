@@ -1,10 +1,11 @@
 import tkinter as tk
 from image import *
+import numpy as np
 
 pay_set = tk.Tk()
-pay_set.title("订单支付")
+pay_set.title("定单支付")
 
-pay = 500  # "pay "
+pay = 200  # "pay "
 account = 300  # "account "
 
 code = get_image("code.jpg", 180, 180)
@@ -31,12 +32,30 @@ label_payfromaccount = tk.Label(pay_set, text="请输入从账户中支付：", 
 label_yuan = tk.Label(pay_set, text="元", fg="black", font=('华文行楷', font_size, 'bold'))
 
 
+def payover():
+    pay_face.destroy()
+    red_packet = tk.Toplevel()
+    low = 0.01
+    high = 0.06
+    num_packet = np.random.uniform(low * pay, high * pay)
+    num_packet = (int(num_packet) // 10) * 10 + 8
+    label_packet = tk.Label(red_packet, text="恭喜您获得红包 " + str(num_packet) + " 元",
+                            fg="black", font=('华文行楷', font_size, 'bold'))
+    packet_sure = tk.Button(red_packet, text="确定", fg="black", font=('华文行楷', font_size, 'bold'), bg="white",
+                            command=red_packet.destroy)
+    label_packet.grid(row=0, column=0, padx=PAD, pady=PAD)
+    packet_sure.grid(row=1, column=0, padx=PAD, pady=PAD)
+
+
 def pay_interface():  # 支付界面
+    global pay_face
     pay_face = tk.Toplevel()
     pay_fromaccount = tk.Label(pay_face, text="已从账户中支付：" + str(pfa.get()) + "元",
                                fg="black", font=('华文行楷', font_size, 'bold'))
     pay_back = tk.Button(pay_face, text="返回", fg="black", font=('华文行楷', font_size, 'bold'), bg="white",
                          command=pay_face.destroy)
+    pay_over = tk.Button(pay_face, text="支付成功", fg="black", font=('华文行楷', font_size, 'bold'), bg="white",
+                         command=payover)
     pfm = pay - float(pfa.get())  # 需另外支付
     if float(pfa.get()) <= account:
         if pfm > 0:
@@ -46,16 +65,17 @@ def pay_interface():  # 支付界面
 
             global code
             pay_codejpg = tk.Label(pay_face, image=code, compound="center")
-            pay_fromaccount.grid(row=0, column=0, padx=PAD, pady=PAD)
-            pay_payfrommoney.grid(row=1, column=0, padx=PAD, pady=PAD)
-            pay_qrcode.grid(row=2, column=0, padx=PAD, pady=PAD)
-            pay_codejpg.grid(row=3, column=0, padx=PAD, pady=PAD)
-            pay_back.grid(row=4, column=0, padx=PAD, pady=PAD)
+            pay_fromaccount.grid(row=0, column=0, columnspan=2, padx=PAD, pady=PAD)
+            pay_payfrommoney.grid(row=1, column=0, columnspan=2, padx=PAD, pady=PAD)
+            pay_qrcode.grid(row=2, column=0, columnspan=2, padx=PAD, pady=PAD)
+            pay_codejpg.grid(row=3, column=0, columnspan=2, padx=PAD, pady=PAD)
+            pay_over.grid(row=4, column=0, padx=PAD, pady=PAD)
+            pay_back.grid(row=4, column=1, padx=PAD, pady=PAD)
         elif pfm == 0:
-            pay_finish = tk.Label(pay_face, text="支付成功！", fg="black", font=('华文行楷', font_size, 'bold'))
+            # pay_finish = tk.Label(pay_face, text="支付成功！", fg="black", font=('华文行楷', font_size, 'bold'))
             pay_fromaccount.grid(row=0, column=0, padx=PAD, pady=PAD)
-            pay_finish.grid(row=1, column=0, padx=PAD, pady=PAD)
-            pay_back.grid(row=2, column=0, padx=PAD, pady=PAD)
+            # pay_finish.grid(row=1, column=0, padx=PAD, pady=PAD)
+            pay_over.grid(row=1, column=0, padx=PAD, pady=PAD)
     elif float(pfa.get()) > account or pfm < 0:
         pay_error = tk.Label(pay_face, text="金额有误，请重新输入！", fg="red", font=('华文行楷', font_size, 'bold'))
         pay_error.grid(row=0, column=0, padx=PAD, pady=PAD)
